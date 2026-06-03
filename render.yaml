@@ -9,3 +9,5 @@ services:
         generateValue: true
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: RENDER_EXTERNAL_URL
+        value: https://kutuphane-1-mjec.onrender.com

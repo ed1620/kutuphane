@@ -104,8 +104,9 @@ def ornek_veri_olustur(app):
             for bolge_adi, bolge_turu, kodlar in bolgeler:
                 for kod in kodlar:
                     qr_yolu = os.path.join(qr_klasor, f'{kod}.png')
+                    base_url = os.environ.get('RENDER_EXTERNAL_URL', 'http://localhost:5001')
                     qr = qrcode.QRCode(version=1, box_size=8, border=2)
-                    qr.add_data(f'http://192.168.111.3:5001/masa/{kod}')
+                    qr.add_data(f'{base_url}/masa/{kod}')
                     qr.make(fit=True)
                     img = qr.make_image(fill_color='black', back_color='white')
                     img.save(qr_yolu)

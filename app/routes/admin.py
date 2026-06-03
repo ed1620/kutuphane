@@ -15,6 +15,7 @@ def admin_gerekli(f):
         return f(*args, **kwargs)
     return decorated
 
+@admin_bp.route('')
 @admin_bp.route('/')
 @login_required
 @admin_gerekli

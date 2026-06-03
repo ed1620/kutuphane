@@ -1288,17 +1288,38 @@ a:hover { text-decoration: underline; color: var(--primary-light); }
     .auth-right { padding: 48px 28px; min-height: 100vh; }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .stats-row-6 { grid-template-columns: repeat(3, 1fr); }
+    .navbar { padding: 0 14px; height: 56px; }
+    .nav-brand-sys { display: none; }
+    .nav-links { gap: 2px; }
+    .nav-link { padding: 6px 8px; font-size: 12px; }
+    .nav-user { display: none; }
+    .veri-tablo { font-size: 12px; }
+    .veri-tablo th, .veri-tablo td { padding: 10px 8px; }
+    .tablo-kart-baslik { flex-wrap: wrap; gap: 8px; }
 }
 
 @media (max-width: 640px) {
-    .navbar { padding: 0 16px; }
+    .navbar { padding: 0 12px; }
     .nav-brand-text .nav-brand-univ { display: none; }
-    .container { padding: 20px 14px; }
+    .nav-brand-logo { width: 32px; height: 32px; }
+    .container { padding: 16px 12px; }
+    .sayfa-baslik { font-size: 20px; }
     .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .stats-row-6 { grid-template-columns: repeat(2, 1fr); }
-    .kat-sekmeler { width: 100%; }
+    .kat-sekmeler { width: 100%; overflow-x: auto; }
     .banner { flex-direction: column; align-items: flex-start; }
-    .kroki-masa { width: 76px; height: 60px; }
+    .banner-sag { width: 100%; display: flex; gap: 8px; flex-wrap: wrap; }
+    .kroki-masa { width: 70px; height: 58px; font-size: 10px; }
+    .kroki-masa-kod { font-size: 10px; }
     .masa-detay-wrapper { max-width: 100%; }
-    .auth-right { padding: 36px 20px; }
+    .auth-right { padding: 28px 16px; }
+    .auth-kutuphane-logo img { max-width: 200px; }
+    /* Tablolar mobile'da scroll ile */
+    .tablo-kart { overflow-x: auto; }
+    .veri-tablo { min-width: 500px; font-size: 12px; }
+    /* Admin form responsive */
+    form[action*="ogrenci-rezervasyon"] { flex-direction: column; }
+    .dropdown-menu { right: 0; left: auto; }
+    /* Kat kroki alanı scroll */
+    .kat-kroki-alani { overflow-x: auto; }
 }
