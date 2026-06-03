@@ -15,8 +15,7 @@ def admin_gerekli(f):
         return f(*args, **kwargs)
     return decorated
 
-@admin_bp.route('')
-@admin_bp.route('/')
+@admin_bp.route('/', strict_slashes=False)
 @login_required
 @admin_gerekli
 def panel():
@@ -25,7 +24,10 @@ def panel():
 
     masalar    = Masa.query.order_by(Masa.kat, Masa.bolge, Masa.masa_kodu).all()
     istatistik = doluluk_istatistigi()
-    grafik     = grafik_olustur(current_app._get_current_object())
+    try:
+        grafik = grafik_olustur(current_app._get_current_object())
+    except Exception:
+        grafik = None
 
     son_rezervasyonlar = Rezervasyon.query.order_by(
         Rezervasyon.giris_zamani.desc()
