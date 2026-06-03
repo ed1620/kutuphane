@@ -18,4 +18,6 @@ if __name__ == '__main__':
     print("  • Periyodik QR / Bluetooth varlık doğrulama")
     print("  • Doğrulama yapılmazsa masa otomatik boşaltılır")
     print("=" * 60)
-    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5001)
+    import os
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=False, use_reloader=False, host='0.0.0.0', port=port)

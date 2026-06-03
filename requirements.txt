@@ -5,3 +5,4 @@ flask-bcrypt==1.0.1
 qrcode[pil]==7.4.2
 apscheduler==3.10.4
 matplotlib==3.8.2
+gunicorn==21.2.0
