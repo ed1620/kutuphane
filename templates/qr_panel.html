@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Test Paneli — Ege Üniversitesi Kütüphane</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #F4F6F9; color: #1A1A2E; }
+
+        .header {
+            background: #003087;
+            color: #fff;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 3px solid #C41E3A;
+        }
+        .header img { width: 44px; height: 44px; border-radius: 50%; background: #fff; padding: 2px; }
+        .header-text { line-height: 1.3; }
+        .header-text .ust  { font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+        .header-text .alt  { font-size: 16px; font-weight: 700; }
+        .header-badge {
+            margin-left: auto;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+
+        .info-bar {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 13px;
+            color: #1E40AF;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .kat-baslik {
+            font-size: 18px;
+            font-weight: 800;
+            color: #003087;
+            margin: 28px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .kat-baslik span {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748B;
+        }
+
+        .bolge-baslik {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .bolge-sessiz   { background: #DBEAFE; color: #1D4ED8; }
+        .bolge-bireysel { background: #FEE2E2; color: #7F1D1D; }
+        .bolge-grup     { background: #DCFCE7; color: #14532D; }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .qr-kart {
+            background: #fff;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 14px 10px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+        .qr-kart:hover { box-shadow: 0 4px 16px rgba(0,48,135,0.12); border-color: #93C5FD; }
+        .qr-kart img { width: 110px; height: 110px; border-radius: 6px; display: block; margin: 0 auto 8px; }
+        .qr-kart .kod { font-size: 13px; font-weight: 800; color: #003087; }
+        .qr-kart .kat-bilgi { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+        .qr-kart .durum {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .durum.bos    { background: #D1FAE5; color: #065F46; }
+        .durum.dolu   { background: #FEE2E2; color: #7F1D1D; }
+        .durum.molada { background: #FEF3C7; color: #92400E; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.aktif { display: flex; }
+        .modal-kutu {
+            background: #fff;
+            border-radius: 18px;
+            padding: 32px 28px 24px;
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .modal-kapat {
+            position: absolute;
+            top: 14px; right: 18px;
+            background: none; border: none;
+            font-size: 22px; cursor: pointer; color: #9CA3AF;
+            line-height: 1;
+        }
+        .modal-kutu img { width: 240px; height: 240px; border-radius: 8px; border: 1px solid #E2E8F0; }
+        .modal-kod { font-size: 22px; font-weight: 800; color: #003087; margin-bottom: 4px; }
+        .modal-kat { font-size: 13px; color: #64748B; margin-bottom: 16px; }
+        .modal-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #003087;
+            text-decoration: none;
+            border: 1px solid #003087;
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+
+        @media print {
+            .header-badge, .info-bar, .modal-overlay { display: none !important; }
+            .qr-kart { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            body { background: #fff; }
+        }
+        @media (max-width: 640px) {
+            .header { padding: 12px 16px; }
+            .container { padding: 16px 12px; }
+            .qr-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+            .qr-kart img { width: 88px; height: 88px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="{{ url_for('static', filename='img/logo1.png') }}" alt="EÜ">
+    <div class="header-text">
+        <div class="ust">Ege Üniversitesi — Kütüphane ve Dokümantasyon Daire Başkanlığı</div>
+        <div class="alt">QR Kod Test Paneli</div>
+    </div>
+    <div class="header-badge">{{ masalar | length }} Masa</div>
+</div>
+
+<div class="container">
+
+    <div class="info-bar">
+        <span style="font-size:18px;">📷</span>
+        <span>Masanın QR kodunu test etmek için karta tıklayın ve kameranızı büyük QR'a tutun.
+        <strong>Yeşil = Müsait</strong>, kırmızı = dolu/molada.</span>
+    </div>
+
+    {% set katlar = [1, 2, 3] %}
+    {% for kat_no in katlar %}
+    {% set kat_masalari = masalar | selectattr('kat', 'equalto', kat_no) | list %}
+    {% if kat_masalari %}
+
+    <div class="kat-baslik">
+        {{ kat_no }}. Kat
+        <span>—
+            {% if kat_no == 1 %}Süper Sessiz Çalışma
+            {% elif kat_no == 2 %}Bireysel Çalışma
+            {% else %}Grup &amp; Sessiz Çalışma{% endif %}
+        </span>
+    </div>
+
+    {% set bolgeler = kat_masalari | map(attribute='bolge') | list | unique | list %}
+    {% for bolge in bolgeler %}
+    {% set bolge_masalari = kat_masalari | selectattr('bolge', 'equalto', bolge) | list %}
+
+    <div class="bolge-baslik {{ bolge_masalari[0].bolge_turu | replace('bireysel','bolge-bireysel') | replace('sessiz','bolge-sessiz') | replace('grup','bolge-grup') }}">
+        {% if bolge_masalari[0].bolge_turu == 'sessiz' %}🔵
+        {% elif bolge_masalari[0].bolge_turu == 'grup' %}🟢
+        {% else %}🔴{% endif %}
+        {{ bolge }}
+    </div>
+
+    <div class="qr-grid">
+        {% for masa in bolge_masalari %}
+        <div class="qr-kart"
+             onclick="modalAc('{{ masa.masa_kodu }}', '{{ url_for('static', filename=masa.qr_resim_yolu) if masa.qr_resim_yolu else '' }}', '{{ masa.kat }}. Kat — {{ masa.bolge }}', '{{ masa.durum }}')">
+            {% if masa.qr_resim_yolu %}
+            <img src="{{ url_for('static', filename=masa.qr_resim_yolu) }}" alt="{{ masa.masa_kodu }}">
+            {% else %}
+            <div style="width:110px;height:110px;background:#F3F4F6;border-radius:6px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:11px;color:#9CA3AF;">QR yok</div>
+            {% endif %}
+            <div class="kod">{{ masa.masa_kodu }}</div>
+            <div class="kat-bilgi">{{ masa.kat }}. Kat</div>
+            <span class="durum {{ masa.durum }}">
+                {% if masa.durum == 'bos' %}Müsait
+                {% elif masa.durum == 'dolu' %}Dolu
+                {% else %}Molada{% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)modalKapat()">
+    <div class="modal-kutu">
+        <button class="modal-kapat" onclick="modalKapat()">✕</button>
+        <div class="modal-kod" id="m-kod"></div>
+        <div class="modal-kat" id="m-kat"></div>
+        <img id="m-img" src="" alt="QR">
+        <br>
+        <a id="m-link" href="#" class="modal-link">Doğrudan aç →</a>
+    </div>
+</div>
+
+<script>
+function modalAc(kod, qrUrl, kat, durum) {
+    document.getElementById('m-kod').textContent = kod;
+    document.getElementById('m-kat').textContent = kat + ' · ' + (durum === 'bos' ? '✅ Müsait' : durum === 'dolu' ? '🔴 Dolu' : '🟡 Molada');
+    document.getElementById('m-img').src = qrUrl;
+    document.getElementById('m-link').href = '/masa/' + kod;
+    document.getElementById('modal').classList.add('aktif');
+}
+function modalKapat() {
+    document.getElementById('modal').classList.remove('aktif');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') modalKapat(); });
+</script>
+
+</body>
+</html>

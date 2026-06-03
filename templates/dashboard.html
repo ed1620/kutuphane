@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% block baslik %}Ana Sayfa{% endblock %}
+
+{% block icerik %}
+<div class="dashboard">
+
+    <!-- Sayfa Başlığı -->
+    <div style="margin-bottom: 24px;">
+        <h1 class="sayfa-baslik">Kütüphane Masa Durumu</h1>
+        <p class="sayfa-alt-baslik" style="margin-bottom:0;">
+            Ege Üniversitesi Kütüphanesi &mdash; Anlık masa doluluk bilgisi ve rezervasyon yönetimi
+        </p>
+    </div>
+
+    <!-- Özet İstatistik Kartları -->
+    <div class="stats-row">
+        <div class="stat-kart bos">
+            <div class="stat-etiket">Müsait Masa</div>
+            <div class="stat-sayi">{{ istatistik.bos }}</div>
+        </div>
+        <div class="stat-kart dolu">
+            <div class="stat-etiket">Kullanımda</div>
+            <div class="stat-sayi">{{ istatistik.dolu }}</div>
+        </div>
+        <div class="stat-kart molada">
+            <div class="stat-etiket">Molada</div>
+            <div class="stat-sayi">{{ istatistik.molada }}</div>
+        </div>
+        <div class="stat-kart toplam">
+            <div class="stat-etiket">Doluluk Oranı</div>
+            <div class="stat-sayi">{{ istatistik.doluluk_orani }}%</div>
+        </div>
+    </div>
+
+    <!-- DOĞRULAMA UYARISI -->
+    {% if aktif_rez and aktif_rez.dogrulama_bekleniyor %}
+    <div class="banner banner-uyari">
+        <div class="banner-sol">
+            <div class="banner-ikon">⚠</div>
+            <div class="banner-metin">
+                <strong>Varlık Doğrulaması Gerekiyor</strong>
+                <span>
+                    Masa {{ aktif_rez.masa.masa_kodu }} için kütüphanede bulunduğunuzu doğrulamanız gerekmektedir.
+                    Kalan süre:
+                    <strong class="sure-geri-sayim kirmizi"
+                            data-bitis="{{ aktif_rez.dogrulama_bitis.isoformat() }}"></strong>
+                </span>
+            </div>
+        </div>
+        <div class="banner-sag">
+            <a href="{{ url_for('main.masa_detay', masa_kodu=aktif_rez.masa.masa_kodu) }}"
+               class="btn btn-danger btn-sm">QR Kodu ile Doğrula</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AKTİF REZERVASYON BANNERI -->
+    {% if aktif_rez and not aktif_rez.dogrulama_bekleniyor %}
+    <div class="banner banner-aktif">
+        <div class="banner-sol">
+            <div class="banner-ikon">✓</div>
+            <div class="banner-metin">
+                <strong>Aktif Rezervasyon — Masa {{ aktif_rez.masa.masa_kodu }}</strong>
+                <span>
+                    {{ aktif_rez.masa.kat }}. Kat &middot; {{ aktif_rez.masa.bolge }} &middot;
+                    Kalan süre:
+                    <strong class="sure-geri-sayim"
+                            data-bitis="{{ aktif_rez.bitis_zamani.isoformat() }}"></strong>
+                </span>
+            </div>
+        </div>
+        <div class="banner-sag">
+            {% if mola_hakki %}
+                <div class="dropdown">
+                    <button class="btn btn-warning btn-sm dropdown-toggle" id="mola-dd-btn">
+                        Mola Al ▾
+                    </button>
+                    <div class="dropdown-menu" id="mola-dd-menu">
+                        <a href="{{ url_for('main.mola_baslat', mola_turu='normal') }}"
+                           class="dropdown-item">
+                            <div class="dropdown-item-ikon">☕</div>
+                            <div>
+                                <div style="font-weight:600; font-size:13px;">Normal Mola</div>
+                                <div style="font-size:12px; color:#64748B;">15 dakika</div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('main.mola_baslat', mola_turu='yemek') }}"
+                           class="dropdown-item">
+                            <div class="dropdown-item-ikon">🍽</div>
+                            <div>
+                                <div style="font-weight:600; font-size:13px;">Yemek Molası</div>
+                                <div style="font-size:12px; color:#64748B;">60 dakika</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <span class="mola-kilitli">
+                    Mola Al
+                    <small style="font-size:11px; opacity:0.7;">&nbsp;({{ config.MIN_SURE_MOLA_DK }} dk. sonra aktif)</small>
+                </span>
+            {% endif %}
+            <a href="{{ url_for('main.cikis_yap') }}" class="btn btn-danger btn-sm">
+                Masadan Ayrıl
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MOLA BANNERI -->
+    {% if mola_rez %}
+    <div class="banner banner-mola">
+        <div class="banner-sol">
+            <div class="banner-ikon">
+                {% if mola_rez.mola_turu == 'yemek' %}🍽{% else %}☕{% endif %}
+            </div>
+            <div class="banner-metin">
+                <strong>
+                    {% if mola_rez.mola_turu == 'yemek' %}Yemek Molası{% else %}Normal Mola{% endif %}
+                    — Masa {{ mola_rez.masa.masa_kodu }}
+                </strong>
+                <span>
+                    Masanız mola süreniz boyunca sizin için ayrılmış olarak beklemektedir.
+                    Kalan süre:
+                    <strong class="sure-geri-sayim"
+                            data-bitis="{{ mola_rez.bitis_zamani.isoformat() }}"></strong>
+                </span>
+            </div>
+        </div>
+        <div class="banner-sag">
+            <a href="{{ url_for('main.masa_detay', masa_kodu=mola_rez.masa.masa_kodu) }}"
+               class="btn btn-success btn-sm">QR ile Geri Dön</a>
+            <a href="{{ url_for('main.cikis_yap') }}" class="btn btn-outline btn-sm">
+                Rezervasyonu Sonlandır
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- KAT SEKMELERİ -->
+    <div class="kat-sekmeler">
+        {% for kat_no in katlar.keys() | sort %}
+        <button class="kat-sekme {% if loop.first %}aktif{% endif %}"
+                data-kat="{{ kat_no }}">
+            {{ kat_no }}. Kat
+        </button>
+        {% endfor %}
+    </div>
+
+    <!-- MASA HARİTASI -->
+    {% for kat_no, bolgeler in katlar.items() | sort %}
+    <div class="kat-panel {% if loop.first %}goster{% endif %}" id="kat-{{ kat_no }}">
+
+        <div class="kat-baslik-satir">
+            <h2 class="bolum-baslik">
+                {{ kat_no }}. Kat
+                <span>
+                    {% if kat_no == 1 %}— Sessiz Çalışma Bölümü
+                    {% elif kat_no == 2 %}— Bireysel Çalışma Bölümü
+                    {% else %}— Grup &amp; Sessiz Çalışma Bölümü{% endif %}
+                </span>
+            </h2>
+            <div class="kat-istatistik">
+                {% set ns = namespace(bos=0, dolu=0, molada=0) %}
+                {% for bolge, masalar_listesi in bolgeler.items() %}
+                    {% for masa in masalar_listesi %}
+                        {% if masa.durum == 'bos' %}{% set ns.bos = ns.bos + 1 %}
+                        {% elif masa.durum == 'dolu' %}{% set ns.dolu = ns.dolu + 1 %}
+                        {% else %}{% set ns.molada = ns.molada + 1 %}{% endif %}
+                    {% endfor %}
+                {% endfor %}
+                <span class="mini-stat bos">{{ ns.bos }} Müsait</span>
+                <span class="mini-stat dolu">{{ ns.dolu }} Kullanımda</span>
+                <span class="mini-stat molada">{{ ns.molada }} Molada</span>
+            </div>
+        </div>
+
+        <div class="kat-kroki-alani">
+            {% for bolge_adi, masalar_listesi in bolgeler.items() %}
+            <div class="kroki-bolge {{ masalar_listesi[0].bolge_turu }}">
+                <span class="kroki-bolge-etiket">
+                    {% set turu = masalar_listesi[0].bolge_turu %}
+                    {% if turu == 'sessiz' %}🔵 Sessiz Alan
+                    {% elif turu == 'grup' %}🟢 Alçak Sesle Çalışma
+                    {% else %}🔴 Süper Sessiz Alan{% endif %}
+                </span>
+                <div class="kroki-masalar">
+                    {% for masa in masalar_listesi %}
+                    <a href="{{ url_for('main.masa_detay', masa_kodu=masa.masa_kodu) }}"
+                       class="kroki-masa {{ masa.durum }}">
+                        <div class="kroki-masa-kod">{{ masa.masa_kodu }}</div>
+                        <div class="kroki-masa-durum">
+                            {% if masa.durum == 'bos' %}Müsait
+                            {% elif masa.durum == 'dolu' %}Dolu
+                            {% else %}Molada{% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="kroki-legand">
+                <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#94A3B8;">Durum Göstergesi:</span>
+                <div class="legand-item"><div class="legand-kare bos"></div>Müsait</div>
+                <div class="legand-item"><div class="legand-kare dolu"></div>Kullanımda</div>
+                <div class="legand-item"><div class="legand-kare molada"></div>Molada</div>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}
+
+{% block ekstra_js %}
+<script>
+// Kat sekme geçişi
+document.querySelectorAll('.kat-sekme').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.kat-sekme').forEach(b => b.classList.remove('aktif'));
+        document.querySelectorAll('.kat-panel').forEach(p => p.classList.remove('goster'));
+        btn.classList.add('aktif');
+        document.getElementById('kat-' + btn.dataset.kat).classList.add('goster');
+    });
+});
+
+// Mola dropdown
+const ddBtn = document.getElementById('mola-dd-btn');
+const ddMenu = document.getElementById('mola-dd-menu');
+if (ddBtn && ddMenu) {
+    ddBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ddMenu.classList.toggle('acik');
+    });
+    document.addEventListener('click', () => ddMenu.classList.remove('acik'));
+}
+
+// Geri sayım sayaçları
+document.querySelectorAll('.sure-geri-sayim').forEach(el => {
+    const bitis = new Date(el.dataset.bitis + 'Z');
+    function guncelle() {
+        const kalan = Math.max(0, bitis - new Date());
+        const dk = Math.floor(kalan / 60000);
+        const sn = Math.floor((kalan % 60000) / 1000);
+        el.textContent = dk + ':' + String(sn).padStart(2,'0') + ' kaldı';
+        if (kalan <= 0) location.reload();
+    }
+    guncelle();
+    setInterval(guncelle, 1000);
+});
+
+// Periyodik doğrulama kontrolü
+async function dogrulamaKontrol() {
+    try {
+        const r = await fetch('/api/dogrulama-durumu');
+        const v = await r.json();
+        if (v.bekleniyor) location.reload();
+    } catch(e) {}
+}
+setInterval(dogrulamaKontrol, 30000);
+
+// Otomatik yenileme
+setTimeout(() => location.reload(), 60000);
+
+</script>
+{% endblock %}

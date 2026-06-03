@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sisteme Giriş — Ege Üniversitesi Kütüphane Masa Yönetim Sistemi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0; padding:0;">
+
+<div class="auth-page">
+
+    <!-- SOL: EÜ Tanıtım -->
+    <div class="auth-left">
+        <div class="auth-univ-logo">
+            <img src="{{ url_for('static', filename='img/logo1.png') }}"
+                 alt="Ege Üniversitesi" class="auth-univ-emblem">
+            <div class="auth-univ-name">
+                <div class="univ-ust">Ege Üniversitesi</div>
+                <div class="univ-alt">Kütüphane ve Dokümantasyon<br>Daire Başkanlığı</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SAĞ: Giriş Formu -->
+    <div class="auth-right">
+        <div class="auth-form-box">
+
+            <div class="auth-kutuphane-logo">
+                <img src="{{ url_for('static', filename='img/kutuphane-02.png') }}"
+                     alt="Ege Üniversitesi Kütüphane ve Dokümantasyon Daire Başkanlığı">
+            </div>
+
+            <h2 class="auth-form-title">Sisteme Giriş</h2>
+            <p class="auth-form-subtitle">Öğrenci numaranız ve şifrenizle giriş yapın.</p>
+
+            {% with mesajlar = get_flashed_messages(with_categories=true) %}
+                {% if mesajlar %}
+                    {% for kategori, mesaj in mesajlar %}
+                        <div class="alert alert-{{ kategori }}" style="margin-bottom:16px;">{{ mesaj }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('auth.giris') }}">
+                <div class="form-grup">
+                    <label for="ogrenci_no">Öğrenci Numarası</label>
+                    <input type="text" id="ogrenci_no" name="ogrenci_no"
+                           placeholder="Örn: 45230000000"
+                           required autofocus autocomplete="username">
+                </div>
+                <div class="form-grup">
+                    <label for="sifre">Şifre</label>
+                    <input type="password" id="sifre" name="sifre"
+                           placeholder="Şifrenizi girin"
+                           required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:8px;">
+                    Giriş Yap
+                </button>
+            </form>
+
+            <div style="display:flex; align-items:center; gap:12px; margin:16px 0;">
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+                <span style="font-size:12px; color:var(--text-muted);">veya</span>
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+            </div>
+
+            <a href="{{ url_for('auth.ege_sso') }}"
+               style="display:flex; align-items:center; justify-content:center; gap:10px;
+                      width:100%; padding:11px 16px; border-radius:8px; text-decoration:none;
+                      border:1.5px solid #003087; color:#003087; font-weight:600; font-size:13.5px;
+                      background:#fff;">
+                <img src="{{ url_for('static', filename='img/logo1.png') }}"
+                     style="width:22px; height:22px; border-radius:50%;" alt="">
+                Ege Kimlik Sistemi ile Giriş
+            </a>
+
+            <p class="auth-alt">
+                Sisteme kayıtlı değil misiniz?
+                <a href="{{ url_for('auth.kayit') }}">Yeni Hesap Oluşturun</a>
+            </p>
+
+
+        </div>
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

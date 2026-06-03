@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block baslik %}QR Kodlar — Yönetim Paneli{% endblock %}
+
+{% block icerik %}
+<div class="sayfa-wrapper">
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;
+                margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h1 class="sayfa-baslik">Masa QR Kodları</h1>
+            <p class="sayfa-alt-baslik" style="margin-bottom:0;">
+                Masalara fiziksel olarak yerleştirilen QR kodları
+            </p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <form method="POST" action="{{ url_for('admin.qr_yenile') }}"
+                  onsubmit="return confirm('QR kodlar mevcut sunucu adresiyle yeniden oluşturulacak. Devam?');">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    QR Kodları Yenile
+                </button>
+            </form>
+            <a href="{{ url_for('admin.panel') }}" class="btn btn-outline btn-sm">
+                Yönetim Paneli
+            </a>
+        </div>
+    </div>
+
+    <div class="tablo-kart" style="margin-bottom:20px; padding:14px 20px;">
+        <div style="font-size:13px; color:#6B7280; line-height:1.7;">
+            <strong style="color:#374151;">Kullanım:</strong>
+            QR kodları tarayıcıda görüntüleyin ve masaya yapıştırmak için yazdırın.
+            "QR Kodları Yenile" butonu, kodları mevcut sunucu adresiyle (<strong>{{ sunucu_url }}</strong>) yeniden oluşturur.
+        </div>
+    </div>
+
+    {% for kat_no in masalar | map(attribute='kat') | list | sort | unique %}
+    {% set kat_masalari = masalar | selectattr('kat', 'equalto', kat_no) | list %}
+    <div class="tablo-kart" style="margin-bottom:24px;">
+        <div class="tablo-kart-baslik">
+            {{ kat_no }}. Kat &mdash;
+            {% if kat_no == 1 %}Sessiz Çalışma
+            {% elif kat_no == 2 %}Bireysel Çalışma
+            {% else %}Grup &amp; Sessiz Çalışma{% endif %}
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(152px,1fr));
+                    gap:16px; padding:20px;">
+            {% for masa in kat_masalari %}
+            <div style="text-align:center; border:1px solid var(--border);
+                        border-radius:10px; padding:14px 10px; background:#FAFAFA;">
+                {% if masa.qr_resim_yolu %}
+                <a href="{{ url_for('static', filename=masa.qr_resim_yolu) }}" target="_blank"
+                   title="Tam boyutta aç">
+                    <img src="{{ url_for('static', filename=masa.qr_resim_yolu) }}"
+                         alt="{{ masa.masa_kodu }}"
+                         style="width:120px; height:120px; border-radius:4px;
+                                display:block; margin:0 auto 10px;">
+                </a>
+                {% else %}
+                <div style="width:120px; height:120px; background:#F3F4F6; border-radius:4px;
+                            display:flex; align-items:center; justify-content:center;
+                            margin:0 auto 10px; font-size:11px; color:#9CA3AF; border:1px dashed #D1D5DB;">
+                    QR yok
+                </div>
+                {% endif %}
+                <div style="font-size:13px; font-weight:700; color:var(--primary);">
+                    {{ masa.masa_kodu }}
+                </div>
+                <div style="font-size:11px; color:#6B7280; margin-top:2px;">
+                    {{ masa.bolge }}
+                </div>
+                <span class="rozet {{ masa.durum }}" style="margin-top:6px; display:inline-block; font-size:10px;">
+                    {% if masa.durum == 'bos' %}Müsait
+                    {% elif masa.durum == 'dolu' %}Kullanımda
+                    {% else %}Molada{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block baslik %}QR Test Ekranı{% endblock %}
+
+{% block icerik %}
+<div class="sayfa-wrapper">
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h1 class="sayfa-baslik">QR Kod Test Ekranı</h1>
+            <p class="sayfa-alt-baslik" style="margin-bottom:0;">
+                Masaların QR kodlarını tarayıcı üzerinden test edin — kameranızı ekrana tutun
+            </p>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <form method="POST" action="{{ url_for('admin.qr_yenile') }}"
+                  onsubmit="return confirm('QR kodlar localhost:5001 adresiyle yeniden oluşturulacak. Devam?');">
+                <button type="submit" class="btn btn-primary btn-sm">QR Yenile</button>
+            </form>
+            <a href="{{ url_for('admin.panel') }}" class="btn btn-outline btn-sm">Yönetim Paneli</a>
+        </div>
+    </div>
+
+    <!-- Bilgi bandı -->
+    <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:10px; padding:12px 16px;
+                margin-bottom:24px; font-size:13px; color:#1E40AF; display:flex; gap:10px; align-items:center;">
+        <span style="font-size:18px;">📷</span>
+        <span>Masanın QR kodunu test etmek için kameranızı veya uygulama içi <strong>QR Tarayıcı</strong>'yı kullanarak
+        ekrandaki koda tutun. Sadece <strong>müsait (yeşil)</strong> masalar taranabilir.</span>
+    </div>
+
+    <!-- Kat sekmeleri -->
+    <div class="kat-sekmeler">
+        {% for kat_no in katlar.keys() | sort %}
+        <button class="kat-sekme {% if loop.first %}aktif{% endif %}" data-kat="{{ kat_no }}">
+            {{ kat_no }}. Kat
+        </button>
+        {% endfor %}
+    </div>
+
+    <!-- Kat panelleri -->
+    {% for kat_no, bolgeler in katlar.items() | sort %}
+    <div class="kat-panel {% if loop.first %}goster{% endif %}" id="kat-{{ kat_no }}">
+
+        <div class="kat-baslik-satir">
+            <h2 class="bolum-baslik">
+                {{ kat_no }}. Kat
+                <span>
+                    {% if kat_no == 1 %}— Sessiz Çalışma Bölümü
+                    {% elif kat_no == 2 %}— Bireysel Çalışma Bölümü
+                    {% else %}— Grup &amp; Sessiz Çalışma Bölümü{% endif %}
+                </span>
+            </h2>
+            <div class="kat-istatistik">
+                {% set ns = namespace(bos=0, dolu=0, molada=0) %}
+                {% for bolge, masalar_listesi in bolgeler.items() %}
+                    {% for masa in masalar_listesi %}
+                        {% if masa.durum == 'bos' %}{% set ns.bos = ns.bos + 1 %}
+                        {% elif masa.durum == 'dolu' %}{% set ns.dolu = ns.dolu + 1 %}
+                        {% else %}{% set ns.molada = ns.molada + 1 %}{% endif %}
+                    {% endfor %}
+                {% endfor %}
+                <span class="mini-stat bos">{{ ns.bos }} Müsait</span>
+                <span class="mini-stat dolu">{{ ns.dolu }} Kullanımda</span>
+                <span class="mini-stat molada">{{ ns.molada }} Molada</span>
+            </div>
+        </div>
+
+        <div class="kat-kroki-alani">
+            {% for bolge_adi, masalar_listesi in bolgeler.items() %}
+            <div class="kroki-bolge {{ masalar_listesi[0].bolge_turu }}">
+                <span class="kroki-bolge-etiket">
+                    {% set turu = masalar_listesi[0].bolge_turu %}
+                    {% if turu == 'sessiz' %}🔵 Sessiz Alan
+                    {% elif turu == 'grup' %}🟢 Alçak Sesle Çalışma
+                    {% else %}🔴 Süper Sessiz Alan{% endif %}
+                </span>
+                <div class="kroki-masalar">
+                    {% for masa in masalar_listesi %}
+                    <div class="qr-test-masa {{ masa.durum }}"
+                         onclick="qrGoster('{{ masa.masa_kodu }}', '{{ url_for('static', filename=masa.qr_resim_yolu) }}', '{{ masa.durum }}')"
+                         title="{{ masa.masa_kodu }} — {% if masa.durum == 'bos' %}Tıkla ve tara{% else %}Kullanımda{% endif %}">
+                        {% if masa.qr_resim_yolu %}
+                        <img src="{{ url_for('static', filename=masa.qr_resim_yolu) }}"
+                             alt="QR — {{ masa.masa_kodu }}"
+                             style="{% if masa.durum != 'bos' %}filter:grayscale(1) opacity(0.4);{% endif %}">
+                        {% else %}
+                        <div style="width:80px;height:80px;background:#F3F4F6;border-radius:4px;
+                                    display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;">
+                            QR yok
+                        </div>
+                        {% endif %}
+                        <div style="font-size:11px; font-weight:700; color:var(--primary);">{{ masa.masa_kodu }}</div>
+                        <span class="rozet {{ masa.durum }}" style="font-size:9px; padding:1px 6px;">
+                            {% if masa.durum == 'bos' %}Müsait
+                            {% elif masa.durum == 'dolu' %}Dolu
+                            {% else %}Molada{% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="kroki-legand">
+                <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:#94A3B8;">Durum:</span>
+                <div class="legand-item"><div class="legand-kare bos"></div>Müsait (taranabilir)</div>
+                <div class="legand-item"><div class="legand-kare dolu"></div>Kullanımda</div>
+                <div class="legand-item"><div class="legand-kare molada"></div>Molada</div>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+
+<!-- QR Modal -->
+<div id="qr-modal" style="display:none; position:fixed; inset:0; z-index:9999;
+     background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:28px; max-width:340px; width:90%;
+                text-align:center; position:relative;">
+        <button onclick="qrKapat()"
+                style="position:absolute; top:12px; right:16px; background:none; border:none;
+                       font-size:20px; cursor:pointer; color:#6B7280;">✕</button>
+        <div id="modal-masa-kodu" style="font-size:22px; font-weight:800; color:var(--primary); margin-bottom:4px;"></div>
+        <div id="modal-masa-durum" style="font-size:13px; color:#6B7280; margin-bottom:16px;"></div>
+        <img id="modal-qr-img" src="" alt="QR"
+             style="width:220px; height:220px; border-radius:8px; border:1px solid var(--border);">
+        <p style="font-size:12px; color:#9CA3AF; margin:12px 0 0;">
+            Kameranızı bu QR koda tutun veya<br>uygulama içi QR Tarayıcı'yı kullanın.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block ekstra_js %}
+<script>
+// Kat sekme geçişi
+document.querySelectorAll('.kat-sekme').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.kat-sekme').forEach(b => b.classList.remove('aktif'));
+        document.querySelectorAll('.kat-panel').forEach(p => p.classList.remove('goster'));
+        btn.classList.add('aktif');
+        document.getElementById('kat-' + btn.dataset.kat).classList.add('goster');
+    });
+});
+
+function qrGoster(masaKodu, qrUrl, durum) {
+    document.getElementById('modal-masa-kodu').textContent = masaKodu;
+    document.getElementById('modal-masa-durum').textContent =
+        durum === 'bos' ? '✅ Müsait — Test için tarayın' :
+        durum === 'dolu' ? '🔴 Kullanımda' : '🟡 Molada';
+    document.getElementById('modal-qr-img').src = qrUrl;
+    const modal = document.getElementById('qr-modal');
+    modal.style.display = 'flex';
+}
+
+function qrKapat() {
+    document.getElementById('qr-modal').style.display = 'none';
+}
+
+document.getElementById('qr-modal').addEventListener('click', function(e) {
+    if (e.target === this) qrKapat();
+});
+</script>
+{% endblock %}

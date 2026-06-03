@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block baslik %}Masa {{ masa.masa_kodu }}{% endblock %}
+
+{% block icerik %}
+<div class="masa-detay-wrapper">
+
+    <!-- Üst başlık: Masa bilgisi -->
+    <div class="masa-detay-header">
+        <div class="masa-detay-renk {{ masa.durum }}"></div>
+        <div class="masa-detay-bilgi">
+            <div class="masa-detay-kat">{{ masa.kat }}. Kat &mdash; {{ masa.bolge }}</div>
+            <h1 class="masa-detay-kod">{{ masa.masa_kodu }}</h1>
+            <div class="masa-detay-bolge">
+                {% if masa.bolge_turu == 'sessiz' %}Sessiz Çalışma Bölgesi
+                {% elif masa.bolge_turu == 'grup' %}Grup Çalışma Bölgesi
+                {% else %}Bireysel Çalışma Bölgesi{% endif %}
+            </div>
+        </div>
+        <span class="rozet {{ masa.durum }}">
+            {% if masa.durum == 'bos' %}Müsait
+            {% elif masa.durum == 'dolu' %}Kullanımda
+            {% else %}Molada{% endif %}
+        </span>
+    </div>
+
+    <!-- Aksiyon Kartı -->
+    {% if aksiyon == 'checkin' %}
+    <div class="aksiyon-kart">
+        <div class="aksiyon-baslik">
+            <h2>Masayı Rezerve Et</h2>
+            <div class="aksiyon-alt">Masanın QR kodunu okutarak bu sayfaya ulaştınız.</div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Aşağıdaki butona basarak masayı rezerve edebilirsiniz.
+            Rezervasyon süresi boyunca masa size ait olacaktır.
+        </p>
+        <form method="POST" action="{{ url_for('main.checkin', masa_kodu=masa.masa_kodu) }}">
+            <button type="submit" class="btn btn-success btn-full btn-lg">
+                Rezervasyonu Başlat
+            </button>
+        </form>
+    </div>
+
+    {% elif aksiyon == 'mola_donus' %}
+    <div class="aksiyon-kart">
+        <div class="aksiyon-baslik">
+            <h2>Masanıza Dönün</h2>
+            <div class="aksiyon-alt">
+                {% if kendi_rez.mola_turu == 'yemek' %}Yemek molasındasınız.{% else %}Normal moladaysınız.{% endif %}
+                Kalan süre:
+                <strong class="sure-sayac" data-bitis="{{ kendi_rez.bitis_zamani.isoformat() }}Z"></strong>
+            </div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Masanız sizin için bekletilmektedir. Masanıza dönmek için butona basın.
+        </p>
+        <form method="POST" action="{{ url_for('main.checkin', masa_kodu=masa.masa_kodu) }}">
+            <button type="submit" class="btn btn-success btn-full btn-lg">
+                Masama Dön
+            </button>
+        </form>
+    </div>
+
+    {% elif aksiyon == 'dogrulama_gerekli' %}
+    <div class="aksiyon-kart uyari-stil">
+        <div class="aksiyon-baslik">
+            <h2>Varlık Doğrulaması</h2>
+            <div class="aksiyon-alt">
+                Kütüphanede bulunduğunuzu doğrulamanız gerekmektedir.
+                Kalan süre:
+                <strong class="sure-sayac" data-bitis="{{ kendi_rez.dogrulama_bitis.isoformat() }}Z"></strong>
+            </div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Periyodik doğrulama süresi gelmiştir. Masanızın QR kodunu okutarak bu sayfaya geldiniz;
+            aşağıdaki butona basarak varlığınızı teyit edin.
+            Belirtilen süre içinde doğrulama yapmazsanız rezervasyonunuz otomatik olarak iptal edilecektir.
+        </p>
+        <form method="POST" action="{{ url_for('main.checkin', masa_kodu=masa.masa_kodu) }}">
+            <button type="submit" class="btn btn-danger btn-full btn-lg">
+                Buradayım — Doğrula
+            </button>
+        </form>
+    </div>
+
+    {% elif aksiyon == 'zaten_oturuyorsun' %}
+    <div class="aksiyon-kart">
+        <div class="aksiyon-baslik">
+            <h2>Aktif Rezervasyonunuz Mevcut</h2>
+            <div class="aksiyon-alt">
+                Bu masada oturuyorsunuz. Kalan süre:
+                <strong class="sure-sayac" data-bitis="{{ kendi_rez.bitis_zamani.isoformat() }}Z"></strong>
+            </div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Bu masa şu anda sizin aktif rezervasyonunuzda bulunmaktadır.
+        </p>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-full btn-lg">
+            Ana Sayfaya Dön
+        </a>
+    </div>
+
+    {% elif aksiyon == 'mola_suresi_doldu' %}
+    <div class="aksiyon-kart">
+        <div class="aksiyon-baslik">
+            <h2>Mola Süreniz Doldu</h2>
+            <div class="aksiyon-alt">Masanız serbest bırakıldı.</div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Mola süreniz dolduğu için masanız sisteme iade edilmiştir.
+            Kütüphanedeki başka bir boş masadan yararlanabilirsiniz.
+        </p>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-full btn-lg">
+            Boş Masa Bul
+        </a>
+    </div>
+
+    {% elif aksiyon == 'baska_masada' %}
+    <div class="aksiyon-kart">
+        <div class="aksiyon-baslik">
+            <h2>Farklı Bir Masanız Aktif</h2>
+            <div class="aksiyon-alt">Önce mevcut rezervasyonunuzu sonlandırın.</div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Sistemde zaten aktif bir rezervasyonunuz bulunmaktadır.
+            Yeni bir masa rezervasyonu yapabilmek için önce mevcut masanızdan ayrılmanız gerekmektedir.
+        </p>
+        <a href="{{ url_for('main.cikis_yap') }}" class="btn btn-danger btn-full btn-lg">
+            Mevcut Masadan Ayrıl
+        </a>
+    </div>
+
+    {% else %}
+    <div class="aksiyon-kart">
+        <div class="aksiyon-baslik">
+            <h2>Bu Masa Kullanımda</h2>
+            <div class="aksiyon-alt">Başka bir masa seçiniz.</div>
+        </div>
+        <p class="aksiyon-aciklama">
+            Seçtiğiniz masa şu anda başka bir kullanıcı tarafından kullanılmaktadır.
+            Ana sayfadan müsait masaları görüntüleyebilirsiniz.
+        </p>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-full btn-lg">
+            Müsait Masa Bul
+        </a>
+    </div>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:12px;">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-ghost btn-sm">
+            &larr; Ana Sayfaya Dön
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block ekstra_js %}
+<script>
+document.querySelectorAll('.sure-sayac').forEach(el => {
+    const bitis = new Date(el.dataset.bitis);
+    function guncelle() {
+        const kalan = Math.max(0, bitis - new Date());
+        const dk = Math.floor(kalan / 60000);
+        const sn = Math.floor((kalan % 60000) / 1000);
+        el.textContent = dk + ':' + String(sn).padStart(2,'0');
+        if (kalan <= 0) location.reload();
+    }
+    guncelle();
+    setInterval(guncelle, 1000);
+});
+</script>
+{% endblock %}

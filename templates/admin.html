@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block baslik %}Yönetim Paneli{% endblock %}
+
+{% block icerik %}
+<div class="sayfa-wrapper">
+
+    <div style="margin-bottom:28px;">
+        <h1 class="sayfa-baslik">Yönetim Paneli</h1>
+        <p class="sayfa-alt-baslik" style="margin-bottom:0;">
+            Ege Üniversitesi Kütüphanesi &mdash; Sistem izleme ve yönetim ekranı
+        </p>
+    </div>
+
+    <!-- Ana İstatistikler -->
+    <div class="stats-row" style="margin-bottom:16px;">
+        <div class="stat-kart bos">
+            <div class="stat-etiket">Müsait Masa</div>
+            <div class="stat-sayi">{{ istatistik.bos }}</div>
+        </div>
+        <div class="stat-kart dolu">
+            <div class="stat-etiket">Kullanımda</div>
+            <div class="stat-sayi">{{ istatistik.dolu }}</div>
+        </div>
+        <div class="stat-kart molada">
+            <div class="stat-etiket">Molada</div>
+            <div class="stat-sayi">{{ istatistik.molada }}</div>
+        </div>
+        <div class="stat-kart toplam">
+            <div class="stat-etiket">Doluluk Oranı</div>
+            <div class="stat-sayi">{{ istatistik.doluluk_orani }}%</div>
+        </div>
+    </div>
+
+    <!-- İkincil İstatistikler -->
+    <div class="stats-row stats-row-3" style="margin-bottom:28px;">
+        <div class="stat-kart bilgi">
+            <div class="stat-etiket">Kayıtlı Öğrenci</div>
+            <div class="stat-sayi" style="color:var(--accent);">{{ toplam_kullanici }}</div>
+        </div>
+        <div class="stat-kart">
+            <div class="stat-etiket">Bugünkü Rezervasyon</div>
+            <div class="stat-sayi" style="color:var(--primary);">{{ bugun_rezervasyon }}</div>
+        </div>
+        <div class="stat-kart">
+            <div class="stat-etiket" style="color:var(--dolu);">Doğrulama Bekleyen</div>
+            <div class="stat-sayi" style="color:var(--dolu);">{{ dogrulama_bekleyen }}</div>
+        </div>
+    </div>
+
+    <!-- Kat Özeti -->
+    <div class="tablo-kart" style="margin-bottom:24px;">
+        <div class="tablo-kart-baslik">Kat Bazlı Doluluk Özeti</div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0;">
+            {% for kat_no, ozet in kat_ozet.items() | sort %}
+            <div style="padding:20px 22px; border-right: 1px solid var(--border); {% if loop.last %}border-right:none;{% endif %}">
+                <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:12px;">{{ kat_no }}. Kat</div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span class="mini-stat bos">{{ ozet.bos }} Müsait</span>
+                    <span class="mini-stat dolu">{{ ozet.dolu }} Dolu</span>
+                    <span class="mini-stat molada">{{ ozet.molada }} Mola</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Yoğunluk Grafiği -->
+    <div class="grafik-kart">
+        <div class="grafik-baslik">Son 7 Günün Saatlik Kullanım Yoğunluğu</div>
+        <div class="grafik-govde">
+            <img src="data:image/png;base64,{{ grafik }}"
+                 alt="Kullanım Yoğunluğu Grafiği" class="grafik-img">
+        </div>
+    </div>
+
+    <!-- Manuel Öğrenci Rezervasyonu -->
+    <div class="tablo-kart" style="margin-bottom:24px;">
+        <div class="tablo-kart-baslik">
+            <span>Manuel Rezervasyon Oluştur</span>
+            <span style="font-size:12px; font-weight:400; color:var(--text-muted);">
+                Telefonu veya kamerası olmayan öğrenciler için
+            </span>
+        </div>
+        <form method="POST" action="{{ url_for('admin.ogrenci_rezervasyon') }}"
+              style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; padding:20px;">
+            <div class="form-grup" style="flex:1; min-width:180px; margin-bottom:0;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:4px; display:block;">
+                    Öğrenci Numarası
+                </label>
+                <input type="text" name="ogrenci_no" placeholder="Örn: 45230000000"
+                       required style="width:100%;">
+            </div>
+            <div class="form-grup" style="flex:1; min-width:180px; margin-bottom:0;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:4px; display:block;">
+                    Masa Seç
+                </label>
+                <select name="masa_id" required style="width:100%;">
+                    <option value="">— Müsait masalar —</option>
+                    {% for masa in masalar %}
+                    {% if masa.durum == 'bos' %}
+                    <option value="{{ masa.id }}">
+                        {{ masa.masa_kodu }} — {{ masa.kat }}. Kat / {{ masa.bolge }}
+                    </option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="white-space:nowrap; padding:10px 20px;">
+                Rezervasyon Oluştur
+            </button>
+        </form>
+    </div>
+
+    <!-- Masa Durumları -->
+    <div class="tablo-kart">
+        <div class="tablo-kart-baslik">
+            <span>Masa Durumları</span>
+            <a href="{{ url_for('admin.qr_test') }}" class="btn btn-outline btn-sm">QR Test</a>
+            <a href="{{ url_for('admin.qr_kodlar') }}" class="btn btn-outline btn-sm">QR Kodları</a>
+            <a href="{{ url_for('admin.kullanicilar') }}" class="btn btn-outline btn-sm">Kullanıcı Listesi</a>
+        </div>
+        <table class="veri-tablo">
+            <thead>
+                <tr>
+                    <th>Masa Kodu</th>
+                    <th>Kat</th>
+                    <th>Bölge</th>
+                    <th>Durum</th>
+                    <th>Doğrulama</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for masa in masalar %}
+                {% set aktif_rez = masa.rezervasyonlar | selectattr('durum', 'in', ['aktif', 'molada']) | first %}
+                <tr>
+                    <td><strong>{{ masa.masa_kodu }}</strong></td>
+                    <td>{{ masa.kat }}. Kat</td>
+                    <td>
+                        {{ masa.bolge }}
+                        <br><small>
+                        {% if masa.bolge_turu == 'sessiz' %}Sessiz Çalışma
+                        {% elif masa.bolge_turu == 'grup' %}Grup Çalışma
+                        {% else %}Bireysel Çalışma{% endif %}
+                        </small>
+                    </td>
+                    <td>
+                        <span class="rozet {{ masa.durum }}">
+                            {% if masa.durum == 'bos' %}Müsait
+                            {% elif masa.durum == 'dolu' %}Kullanımda
+                            {% else %}Molada{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if aktif_rez and aktif_rez.dogrulama_bekleniyor %}
+                            <span class="rozet" style="background:var(--dolu-bg);color:#7F1D1D;border-color:var(--dolu-border);">Bekliyor</span>
+                        {% else %}
+                            <span class="metin-gri">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if masa.durum != 'bos' %}
+                        <a href="{{ url_for('admin.masa_sifirla', masa_id=masa.id) }}"
+                           class="btn btn-danger btn-mini"
+                           onclick="return confirm('Masa rezervasyonunu sıfırlamak istediğinize emin misiniz?');">
+                           Sıfırla
+                        </a>
+                        {% else %}
+                        <span class="metin-gri">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Son Rezervasyonlar -->
+    <div class="tablo-kart">
+        <div class="tablo-kart-baslik">Son Rezervasyonlar</div>
+        <table class="veri-tablo">
+            <thead>
+                <tr>
+                    <th>Öğrenci</th>
+                    <th>Masa</th>
+                    <th>Kat / Bölge</th>
+                    <th>Giriş Zamanı</th>
+                    <th>Mola Tipi</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for rez in son_rezervasyonlar %}
+                <tr>
+                    <td>
+                        <strong>{{ rez.kullanici.ad_soyad }}</strong>
+                        <br><small>{{ rez.kullanici.ogrenci_no }}</small>
+                    </td>
+                    <td><strong>{{ rez.masa.masa_kodu }}</strong></td>
+                    <td>{{ rez.masa.kat }}. Kat &middot; {{ rez.masa.bolge }}</td>
+                    <td>{{ rez.giris_zamani.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>
+                        {% if rez.mola_turu == 'yemek' %}
+                            <span class="rozet molada">Yemek (60 dk)</span>
+                        {% elif rez.mola_turu == 'normal' %}
+                            <span class="rozet molada">Normal (15 dk)</span>
+                        {% else %}
+                            <span class="metin-gri">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="rozet {{ rez.durum }}">
+                            {% if rez.durum == 'aktif' %}Aktif
+                            {% elif rez.durum == 'molada' %}Molada
+                            {% elif rez.durum == 'tamamlandi' %}Tamamlandı
+                            {% elif rez.durum == 'iptal' %}İptal
+                            {% else %}{{ rez.durum }}{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if rez.durum in ('aktif', 'molada') %}
+                        <form method="POST"
+                              action="{{ url_for('admin.rezervasyon_sonlandir', rez_id=rez.id) }}"
+                              onsubmit="return confirm('{{ rez.kullanici.ad_soyad }} için rezervasyon sonlandırılacak. Emin misiniz?');"
+                              style="margin:0;">
+                            <button type="submit" class="btn btn-danger btn-mini">Sonlandır</button>
+                        </form>
+                        {% else %}
+                        <span class="metin-gri">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

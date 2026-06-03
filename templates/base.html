@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block baslik %}Kütüphane Masa Yönetim Sistemi{% endblock %} — Ege Üniversitesi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<nav class="navbar">
+    <a href="{{ url_for('main.dashboard') }}" class="nav-brand">
+        <img src="{{ url_for('static', filename='img/logo1.png') }}"
+             alt="Ege Üniversitesi" class="nav-brand-logo">
+        <div class="nav-brand-text">
+            <span class="nav-brand-univ">Ege Üniversitesi</span>
+            <span class="nav-brand-sys">Kütüphane Masa Yönetim Sistemi</span>
+        </div>
+    </a>
+    <div class="nav-links">
+        <a href="{{ url_for('main.dashboard') }}"
+           class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">Ana Sayfa</a>
+        <a href="{{ url_for('main.gecmis') }}"
+           class="nav-link {% if request.endpoint == 'main.gecmis' %}active{% endif %}">Rezervasyon Geçmişim</a>
+        <a href="{{ url_for('main.qr_tara') }}"
+           class="nav-link {% if request.endpoint == 'main.qr_tara' %}active{% endif %}">QR Tara</a>
+        {% if current_user.rol == 'admin' %}
+        <a href="{{ url_for('admin.panel') }}"
+           class="nav-link admin-link {% if request.blueprint == 'admin' %}active{% endif %}">Yönetim Paneli</a>
+        {% endif %}
+        <div class="nav-divider"></div>
+        <span class="nav-user">{{ current_user.ad_soyad }}</span>
+        <a href="{{ url_for('auth.cikis') }}" class="nav-link logout">Çıkış Yap</a>
+    </div>
+</nav>
+{% endif %}
+
+<main class="container">
+    {% with mesajlar = get_flashed_messages(with_categories=true) %}
+        {% if mesajlar %}
+            <div class="flash-container">
+            {% for kategori, mesaj in mesajlar %}
+                <div class="alert alert-{{ kategori }}">{{ mesaj }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block icerik %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block ekstra_js %}{% endblock %}
+</body>
+</html>

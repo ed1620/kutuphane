@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block baslik %}Kayıtlı Kullanıcılar — Yönetim Paneli{% endblock %}
+
+{% block icerik %}
+<div class="sayfa-wrapper">
+
+    <div style="margin-bottom:28px;">
+        <h1 class="sayfa-baslik">Kayıtlı Kullanıcılar</h1>
+        <p class="sayfa-alt-baslik" style="margin-bottom:0;">
+            Sisteme kayıtlı tüm öğrenci ve yönetici hesapları
+        </p>
+    </div>
+
+    <div class="tablo-kart">
+        <div class="tablo-kart-baslik">
+            <span>Kullanıcı Listesi</span>
+            <a href="{{ url_for('admin.panel') }}" class="btn btn-outline btn-sm">Yönetim Paneli</a>
+        </div>
+        <table class="veri-tablo">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>Öğrenci Numarası</th>
+                    <th>E-posta Adresi</th>
+                    <th>Rol</th>
+                    <th>Kayıt Tarihi</th>
+                    <th>Toplam Rezervasyon</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for k in kullanicilar %}
+                <tr>
+                    <td class="metin-gri">{{ loop.index }}</td>
+                    <td><strong>{{ k.ad_soyad }}</strong></td>
+                    <td>{{ k.ogrenci_no }}</td>
+                    <td>{{ k.email }}</td>
+                    <td>
+                        {% if k.rol == 'admin' %}
+                            <span class="rozet aktif">Yönetici</span>
+                        {% else %}
+                            <span class="rozet tamamlandi">Öğrenci</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ k.olusturulma.strftime('%d.%m.%Y') }}</td>
+                    <td>{{ k.rezervasyonlar | length }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

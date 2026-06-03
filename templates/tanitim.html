@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EÜ Kütüphane Masa Yönetim Sistemi — Proje Tanıtımı</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --lacivert:  #003087;
+            --kirmizi:   #C41E3A;
+            --altin:     #C8A325;
+            --yazi:      #1A1A2E;
+            --ikincil:   #4B5563;
+            --bg:        #F8FAFC;
+            --beyaz:     #FFFFFF;
+            --sinir:     #E2E8F0;
+            --sinir-ac:  #F1F5F9;
+        }
+
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; color: var(--yazi); background: var(--bg); font-size: 15px; line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: var(--lacivert);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 48px; height: 60px;
+            border-bottom: 3px solid var(--kirmizi);
+        }
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .nav-brand img { width: 36px; height: 36px; border-radius: 50%; background: #fff; padding: 2px; }
+        .nav-brand-ad { font-size: 14px; font-weight: 700; color: #fff; }
+        .nav-links { display: flex; gap: 28px; }
+        .nav-links a { font-size: 13px; color: rgba(255,255,255,0.75); font-weight: 500; }
+        .nav-links a.vurgulu {
+            background: var(--kirmizi); color: #fff; padding: 7px 16px;
+            border-radius: 6px; font-weight: 600;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--lacivert);
+            padding: 120px 48px 80px;
+            text-align: center;
+        }
+        .hero img { width: 80px; height: 80px; border-radius: 50%; background: #fff; padding: 3px; margin-bottom: 24px; display: block; margin-left: auto; margin-right: auto; }
+        .hero-ust { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.55); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+        .hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 16px; }
+        .hero h1 span { color: var(--altin); }
+        .hero-aciklama { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 560px; margin: 0 auto 36px; }
+        .hero-butonlar { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn-birincil {
+            background: var(--kirmizi); color: #fff;
+            padding: 12px 26px; border-radius: 8px; font-weight: 600; font-size: 14px;
+        }
+        .btn-ikincil {
+            background: rgba(255,255,255,0.1); color: #fff;
+            padding: 12px 26px; border-radius: 8px; font-weight: 600; font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .hero-sayilar {
+            display: flex; gap: 48px; justify-content: center; margin-top: 52px; flex-wrap: wrap;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px;
+        }
+        .hero-sayi .deger { font-size: 32px; font-weight: 800; color: var(--altin); }
+        .hero-sayi .etiket { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+        /* ── BÖLÜMLER ── */
+        section { padding: 80px 48px; }
+        .sarici { max-width: 1040px; margin: 0 auto; }
+        .bolum-ust { font-size: 11px; font-weight: 700; color: var(--lacivert); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+        .bolum-baslik { font-size: clamp(22px, 3vw, 32px); font-weight: 800; margin-bottom: 12px; }
+        .bolum-alt { font-size: 15px; color: var(--ikincil); max-width: 580px; }
+
+        hr.ayrac { border: none; border-top: 1px solid var(--sinir); margin: 0 48px; }
+
+        /* ── SORUN & ÇÖZÜM ── */
+        .iki-sutun { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+        .bilgi-kart { border-radius: 10px; padding: 26px; border: 1px solid; }
+        .bilgi-kart.sorun { border-color: #FECACA; background: #FFF8F8; }
+        .bilgi-kart.cozum { border-color: #A7F3D0; background: #F0FFF8; }
+        .bilgi-kart-baslik { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+        .bilgi-kart.sorun .bilgi-kart-baslik { color: #991B1B; }
+        .bilgi-kart.cozum .bilgi-kart-baslik { color: #065F46; }
+        .bilgi-liste { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+        .bilgi-liste li { font-size: 13.5px; display: flex; gap: 8px; line-height: 1.5; }
+        .bilgi-liste li::before { flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+        .sorun .bilgi-liste li { color: #7F1D1D; }
+        .sorun .bilgi-liste li::before { content: '—'; color: #EF4444; }
+        .cozum .bilgi-liste li { color: #064E3B; }
+        .cozum .bilgi-liste li::before { content: '+'; color: #10B981; }
+
+        /* ── ÖZELLİKLER ── */
+        #ozellikler { background: var(--beyaz); }
+        .ozellik-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+        .ozellik-kart {
+            border: 1px solid var(--sinir); border-radius: 10px; padding: 24px; background: var(--bg);
+        }
+        .ozellik-no { font-size: 11px; font-weight: 700; color: var(--lacivert); opacity: 0.4; margin-bottom: 8px; letter-spacing: 1px; }
+        .ozellik-baslik { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+        .ozellik-aciklama { font-size: 13px; color: var(--ikincil); line-height: 1.6; }
+
+        /* ── EKİP ── */
+        .ekip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 40px; }
+        .ekip-kart {
+            border: 1px solid var(--sinir); border-radius: 10px; padding: 28px;
+            background: var(--beyaz); display: flex; align-items: center; gap: 20px;
+        }
+        .ekip-avatar {
+            width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+            object-fit: cover; object-position: top;
+            border: 2px solid var(--sinir);
+        }
+        .ekip-ad { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+        .ekip-no { font-size: 13px; color: var(--ikincil); margin-bottom: 8px; }
+        .ekip-rol { font-size: 12px; font-weight: 600; color: var(--lacivert); background: #EEF2FF; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+
+        /* ── HOCA ── */
+        #hoca { background: var(--lacivert); }
+        .hoca-ic { display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap; }
+        .hoca-avatar {
+            width: 100px; height: 100px; border-radius: 50%; flex-shrink: 0;
+            border: 3px solid rgba(255,255,255,0.25);
+            object-fit: cover; object-position: top;
+        }
+        .hoca-unvan { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .hoca-ad { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+        .hoca-ders { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.85); padding: 4px 14px; border-radius: 4px; font-size: 13px; font-weight: 600; }
+        .hoca-metin { margin-top: 14px; font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 540px; }
+
+        /* ── TEKNOLOJİ ── */
+        #teknik { background: var(--beyaz); }
+        .chip-grup { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+        .chip { display: flex; align-items: center; gap: 7px; background: var(--bg); border: 1px solid var(--sinir); border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 500; }
+        .chip-nokta { width: 7px; height: 7px; border-radius: 50%; background: var(--lacivert); flex-shrink: 0; }
+
+        /* ── ERİŞİM ── */
+        #erisim { background: var(--lacivert); }
+        #erisim .bolum-ust { color: rgba(255,255,255,0.5); }
+        #erisim .bolum-baslik { color: #fff; }
+        #erisim .bolum-alt { color: rgba(255,255,255,0.6); }
+        .erisim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+        .erisim-kart {
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px; padding: 26px;
+        }
+        .erisim-baslik { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .erisim-aciklama { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 16px; }
+        .erisim-bilgi {
+            font-size: 12px; color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.07);
+            border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; font-family: monospace;
+            border: 1px solid rgba(255,255,255,0.1); line-height: 1.8;
+        }
+        .erisim-btn {
+            display: inline-block; padding: 10px 18px; border-radius: 7px;
+            font-size: 13px; font-weight: 600;
+        }
+        .btn-beyaz  { background: #fff; color: var(--lacivert); }
+        .btn-cizgi  { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #001050; padding: 28px 48px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        footer .sol { display: flex; align-items: center; gap: 12px; }
+        footer img { width: 32px; height: 32px; border-radius: 50%; background: #fff; padding: 2px; }
+        footer .sol-metin { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+        footer .sol-metin strong { color: rgba(255,255,255,0.75); font-weight: 600; }
+        footer .sag { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+        @media (max-width: 900px) {
+            .navbar { padding: 0 20px; }
+            .nav-links { display: none; }
+            section { padding: 56px 20px; }
+            hr.ayrac { margin: 0 20px; }
+            .hero { padding: 96px 20px 56px; }
+            .iki-sutun, .ozellik-grid, .ekip-grid, .erisim-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">
+        <img src="{{ url_for('static', filename='img/logo1.png') }}" alt="EÜ">
+        <div class="nav-brand-ad">Kütüphane Masa Yönetim Sistemi</div>
+    </div>
+    <div class="nav-links">
+        <a href="#sorun">Sorun &amp; Çözüm</a>
+        <a href="#ozellikler">Özellikler</a>
+        <a href="#ekip">Ekip</a>
+        <a href="#erisim">Erişim</a>
+        <a href="{{ url_for('main.dashboard') }}" class="vurgulu">Uygulamayı Aç</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <img src="{{ url_for('static', filename='img/logo1.png') }}" alt="Ege Üniversitesi">
+    <div class="hero-ust">Ege Üniversitesi — Nesne Yönelimli Programlama Final Projesi</div>
+    <h1>Kütüphane Masa<br><span>Yönetim Sistemi</span></h1>
+    <p class="hero-aciklama">
+        QR kod tabanlı masa rezervasyonu, otomatik tahliye algoritması ve
+        gerçek zamanlı doluluk takibi ile kütüphane alan yönetimini dijitalleştiren sistem.
+    </p>
+    <div class="hero-butonlar">
+        <a href="{{ url_for('main.dashboard') }}" class="btn-birincil">Uygulamayı Aç</a>
+        <a href="{{ url_for('main.qr_panel') }}" class="btn-ikincil">QR Kod Paneli</a>
+    </div>
+</div>
+
+<!-- SORUN & ÇÖZÜM -->
+<section id="sorun">
+    <div class="sarici">
+        <div class="bolum-ust">Proje Gerekçesi</div>
+        <h2 class="bolum-baslik">Neden Bu Sistem Geliştirildi?</h2>
+        <p class="bolum-alt">Ege Üniversitesi Kütüphanesi'nde özellikle sınav dönemlerinde yaşanan masa yönetimi sorunlarından yola çıkılmıştır.</p>
+        <div class="iki-sutun">
+            <div class="bilgi-kart sorun">
+                <div class="bilgi-kart-baslik">Mevcut Sorunlar</div>
+                <ul class="bilgi-liste">
+                    <li>Eşya bırakarak yer işgali ve koltuk tekelleşmesi</li>
+                    <li>Anlık boş masa bilgisine erişim imkânının bulunmaması</li>
+                    <li>Personelin manuel takip yükü ve öğrencilerle yaşanan anlaşmazlıklar</li>
+                    <li>Yoğunluk verisi olmaksızın verimsiz kaynak planlaması</li>
+                </ul>
+            </div>
+            <div class="bilgi-kart cozum">
+                <div class="bilgi-kart-baslik">Sistemin Çözümleri</div>
+                <ul class="bilgi-liste">
+                    <li>QR kod ile fiziksel varlık doğrulaması zorunluluğu</li>
+                    <li>Kat planı (kroki) üzerinde gerçek zamanlı doluluk haritası</li>
+                    <li>30 dakika hareketsizlik sonrası otomatik tahliye algoritması</li>
+                    <li>Admin paneli ile anlık müdahale, raporlama ve istatistik görünümü</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="ayrac">
+
+<!-- ÖZELLİKLER -->
+<section id="ozellikler">
+    <div class="sarici">
+        <div class="bolum-ust">Sistem Özellikleri</div>
+        <h2 class="bolum-baslik">Temel Fonksiyonlar</h2>
+        <p class="bolum-alt">Öğrenci, personel ve yönetici ihtiyaçlarını karşılamak üzere tasarlanmış özellik seti.</p>
+        <div class="ozellik-grid">
+            <div class="ozellik-kart">
+                <div class="ozellik-no">01</div>
+                <div class="ozellik-baslik">QR Kod ile Check-in</div>
+                <div class="ozellik-aciklama">Her masada fiziksel QR kod bulunur. Öğrenci uygulama içi tarayıcıyla okutunca sistem doğrular ve rezervasyonu başlatır.</div>
+            </div>
+            <div class="ozellik-kart">
+                <div class="ozellik-no">02</div>
+                <div class="ozellik-baslik">Anlık Kroki Haritası</div>
+                <div class="ozellik-aciklama">Kütüphanenin kat planı üzerinde masalar gerçek zamanlı olarak Müsait, Dolu veya Molada durumunda gösterilir.</div>
+            </div>
+            <div class="ozellik-kart">
+                <div class="ozellik-no">03</div>
+                <div class="ozellik-baslik">Otomatik Tahliye</div>
+                <div class="ozellik-aciklama">Periyodik QR doğrulaması yapılmayan masalar otomatik olarak boşaltılır. Personelin manuel müdahalesine gerek kalmaz.</div>
+            </div>
+            <div class="ozellik-kart">
+                <div class="ozellik-no">04</div>
+                <div class="ozellik-baslik">Mola Yönetimi</div>
+                <div class="ozellik-aciklama">Normal mola (15 dk) ve yemek molası (60 dk) seçenekleri. Mola süresince masa ilgili öğrenciye ayrılı kalır.</div>
+            </div>
+            <div class="ozellik-kart">
+                <div class="ozellik-no">05</div>
+                <div class="ozellik-baslik">Ses Seviyesi Bölgeleri</div>
+                <div class="ozellik-aciklama">Kütüphane afişiyle uyumlu renk kodlaması: Kirmizi = Süper Sessiz, Mavi = Sessiz, Yesil = Alçak Sesle.</div>
+            </div>
+            <div class="ozellik-kart">
+                <div class="ozellik-no">06</div>
+                <div class="ozellik-baslik">Yönetim Paneli</div>
+                <div class="ozellik-aciklama">Adminler öğrenci kimliğiyle manuel rezervasyon oluşturabilir, aktif rezervasyonları sonlandırabilir, istatistik görüntüleyebilir.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="ayrac">
+
+<!-- EKİP -->
+<section id="ekip" style="background: var(--beyaz);">
+    <div class="sarici">
+        <div class="bolum-ust">Geliştirici Ekip</div>
+        <h2 class="bolum-baslik">Projeyi Geliştiren Öğrenciler</h2>
+        <p class="bolum-alt">Ege Üniversitesi BÖTE (Bilgisayar ve Öğretim Teknolojileri Eğitimi) bölümü öğrencileri tarafından Nesne Yönelimli Programlama dersi kapsamında geliştirilmiştir.</p>
+        <div class="ekip-grid">
+            <div class="ekip-kart">
+                <img src="{{ url_for('static', filename='img/eren.jpg') }}" alt="Eren Doğan" class="ekip-avatar">
+                <div>
+                    <div class="ekip-ad">Eren Doğan</div>
+                    <div class="ekip-no">45230000535</div>
+                    <span class="ekip-rol">Backend Geliştirme &amp; Sistem Mimarisi</span>
+                </div>
+            </div>
+            <div class="ekip-kart">
+                <img src="{{ url_for('static', filename='img/zehra.png') }}" alt="Fatma Zehra Düzenli" class="ekip-avatar">
+                <div>
+                    <div class="ekip-ad">Fatma Zehra Düzenli</div>
+                    <div class="ekip-no">45220000240</div>
+                    <span class="ekip-rol">Analiz &amp; Proje Yönetimi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOCA -->
+<section id="hoca">
+    <div class="sarici">
+        <div class="hoca-ic">
+            <img src="{{ url_for('static', filename='img/hoca.jpg') }}" alt="Prof. Dr. Tarık KIŞLA" class="hoca-avatar">
+            <div>
+                <div class="hoca-unvan">Ders Sorumlusu</div>
+                <div class="hoca-ad">Prof. Dr. Tarık KIŞLA</div>
+                <span class="hoca-ders">Nesne Yönelimli Programlama</span>
+                <p class="hoca-metin">Bu proje, Ege Üniversitesi BÖTE (Bilgisayar ve Öğretim Teknolojileri Eğitimi) bölümünde yürütülen Nesne Yönelimli Programlama dersinin final projesi kapsamında hazırlanmıştır. Gerçek dünya problemine çözüm üreten, çalışır durumda bir yazılım sistemi geliştirilmesi hedeflenmiştir.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="ayrac">
+
+<!-- TEKNOLOJİ -->
+<section id="teknik" style="background:var(--beyaz);">
+    <div class="sarici">
+        <div class="bolum-ust">Teknoloji</div>
+        <h2 class="bolum-baslik">Kullanılan Teknolojiler</h2>
+        <p class="bolum-alt">Python ekosistemi ve modern web standartları tercih edilmiştir.</p>
+        <div class="chip-grup">
+            <div class="chip"><div class="chip-nokta"></div>Python 3</div>
+            <div class="chip"><div class="chip-nokta"></div>Flask 3.x</div>
+            <div class="chip"><div class="chip-nokta"></div>SQLAlchemy ORM</div>
+            <div class="chip"><div class="chip-nokta"></div>SQLite</div>
+            <div class="chip"><div class="chip-nokta"></div>Flask-Login</div>
+            <div class="chip"><div class="chip-nokta"></div>Flask-Bcrypt</div>
+            <div class="chip"><div class="chip-nokta"></div>APScheduler</div>
+            <div class="chip"><div class="chip-nokta"></div>Matplotlib</div>
+            <div class="chip"><div class="chip-nokta"></div>QRCode (PIL)</div>
+            <div class="chip"><div class="chip-nokta"></div>BarcodeDetector API</div>
+            <div class="chip"><div class="chip-nokta"></div>Jinja2</div>
+            <div class="chip"><div class="chip-nokta"></div>CSS Grid / Flexbox</div>
+        </div>
+    </div>
+</section>
+
+<!-- ERİŞİM -->
+<section id="erisim">
+    <div class="sarici">
+        <div class="bolum-ust">Erişim Bağlantıları</div>
+        <h2 class="bolum-baslik">Sisteme Erişin</h2>
+        <p class="bolum-alt">Uygulamayı kullanmak veya QR kodları test etmek için aşağıdaki bağlantıları kullanın.</p>
+        <div class="erisim-grid">
+            <div class="erisim-kart">
+                <div class="erisim-baslik">Ana Uygulama</div>
+                <div class="erisim-aciklama">Masa rezervasyonu, mola yönetimi ve anlık kroki haritasına erişin.</div>
+                <div class="erisim-bilgi">
+                    Yönetici: admin / admin123<br>
+                    Öğrenci: 45230000535 / eren123
+                </div>
+                <a href="{{ url_for('main.dashboard') }}" class="erisim-btn btn-beyaz">Uygulamayı Aç</a>
+            </div>
+            <div class="erisim-kart">
+                <div class="erisim-baslik">QR Kod Paneli</div>
+                <div class="erisim-aciklama">Tüm masaların QR kodlarını görüntüleyin ve kameranızla test edin. Giriş gerekmez.</div>
+                <a href="{{ url_for('main.qr_panel') }}" class="erisim-btn btn-cizgi">QR Kodlarini Gor</a>
+            </div>
+            <div class="erisim-kart">
+                <div class="erisim-baslik">Yönetim Paneli</div>
+                <div class="erisim-aciklama">Sistem istatistikleri, manuel rezervasyon ve QR yönetimi için admin hesabıyla erişin.</div>
+                <div class="erisim-bilgi">
+                    admin / admin123
+                </div>
+                <a href="{{ url_for('admin.panel') }}" class="erisim-btn btn-cizgi">Admin Paneli</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="sol">
+        <img src="{{ url_for('static', filename='img/logo1.png') }}" alt="EÜ">
+        <div class="sol-metin">
+            <strong>Ege Üniversitesi Kütüphane Masa Yönetim Sistemi</strong><br>
+            Prof. Dr. Tarık KIŞLA — Nesne Yönelimli Programlama Dersi
+        </div>
+    </div>
+    <div class="sag">Eren Doğan &amp; Fatma Zehra Düzenli</div>
+</footer>
+
+</body>
+</html>

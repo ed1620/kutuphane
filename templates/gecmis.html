@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block baslik %}Rezervasyon Geçmişim{% endblock %}
+
+{% block icerik %}
+<div class="sayfa-wrapper">
+
+    <div style="margin-bottom:28px;">
+        <h1 class="sayfa-baslik">Rezervasyon Geçmişim</h1>
+        <p class="sayfa-alt-baslik" style="margin-bottom:0;">
+            Kütüphane masa kullanım geçmişiniz
+        </p>
+    </div>
+
+    {% if rezervasyonlar %}
+    <div class="tablo-kart">
+        <div class="tablo-kart-baslik">Tüm Rezervasyonlar</div>
+        <table class="veri-tablo">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Masa</th>
+                    <th>Bölge</th>
+                    <th>Giriş Zamanı</th>
+                    <th>Çıkış Zamanı</th>
+                    <th>Toplam Süre</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for rez in rezervasyonlar %}
+                <tr>
+                    <td class="metin-gri">{{ loop.index }}</td>
+                    <td><strong>{{ rez.masa.masa_kodu }}</strong></td>
+                    <td>{{ rez.masa.bolge }}</td>
+                    <td>{{ rez.giris_zamani.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>
+                        {% if rez.cikis_zamani %}
+                            {{ rez.cikis_zamani.strftime('%d.%m.%Y %H:%M') }}
+                        {% else %}
+                            <span class="metin-gri">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if rez.cikis_zamani %}
+                            {% set dakika = ((rez.cikis_zamani - rez.giris_zamani).total_seconds() / 60) | int %}
+                            {{ dakika }} dk.
+                        {% else %}
+                            <span class="metin-gri">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="rozet {{ rez.durum }}">
+                            {% if rez.durum == 'aktif' %}Aktif
+                            {% elif rez.durum == 'molada' %}Molada
+                            {% elif rez.durum == 'tamamlandi' %}Tamamlandı
+                            {% elif rez.durum == 'iptal' %}İptal Edildi
+                            {% elif rez.durum == 'otomatik_iptal' %}Otomatik İptal
+                            {% else %}{{ rez.durum }}{% endif %}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="tablo-kart">
+        <div class="bos-durum">
+            <div class="bos-durum-ikon">📋</div>
+            <p>Henüz hiçbir rezervasyon geçmişiniz bulunmuyor.</p>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                Masa Rezervasyonu Yap
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
